@@ -21,7 +21,8 @@ It is written in 4 different languages: C, C#, Python and JavaScript.
         - [JavaScript](#javascript)
 
 ## Installation
-On prosses...
+On progress...
+
 ## Rquirements
 You need terminal that supports ANSI escape codes and colors.
 
