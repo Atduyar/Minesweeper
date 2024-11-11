@@ -57,8 +57,9 @@ void freeGame(MinesweeperGame* game) {
 }
 
 MinesweeperGame* refreshGame(MinesweeperGame* game) {
+	MinesweeperGame* ng = newGame(game->settings);
 	freeGame(game);
-	return newGame(game->settings);
+	return ng;
 }
 
 static uint32_t countAdjacentMines(MinesweeperGame* game, int x, int y) {
@@ -124,8 +125,8 @@ void reveal(MinesweeperGame* game, int x, int y) {
 				return;
 			}
 			else if (cell->value == '0') {
-				for (int8_t ry = -1; ry <= 1; ry++) {
-					for (int8_t rx = -1; rx <= 1; rx++) {
+				for (int32_t ry = -1; ry <= 1; ry++) {
+					for (int32_t rx = -1; rx <= 1; rx++) {
 						if (x+rx < 0 || x+rx >= game->board->width ||
 							y+ry < 0 || y+ry >= game->board->height
 						) {
@@ -141,6 +142,17 @@ void reveal(MinesweeperGame* game, int x, int y) {
 				game->status.state = YOU_WIN;
 			}
 		} break;
+	}
+}
+
+void revealAllMines(MinesweeperGame* game) {
+	for (size_t y = 0; y < game->board->height; y++) {
+		for (size_t x = 0; x < game->board->width; x++) {
+			Cell* c = &GET_CELL(game->board, x, y);
+			if (c->value == 'B') {
+				c->status = OPENED;
+			}
+		}
 	}
 }
 

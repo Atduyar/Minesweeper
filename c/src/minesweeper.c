@@ -6,7 +6,8 @@
 
 int cur_x = 0, cur_y =0;
 
-bool update(MinesweeperGame* game){
+bool update(MinesweeperGame** g){
+	MinesweeperGame* game = *g;
 	switch (getch()) {
 		case KEY_UP: {
 			cur_y--;
@@ -26,7 +27,15 @@ bool update(MinesweeperGame* game){
 		} break;
 		case '\n':
 		case KEY_ENTER: {
-			reveal(game, cur_x, cur_y);
+			if (game->status.state == WAITING_FIRST_MOVE || game->status.state == PLAYING) {
+				reveal(game, cur_x, cur_y);
+				if (game->status.state == YOU_WIN || game->status.state == YOU_GAMEOVER) {
+					revealAllMines(game);
+				}
+			}
+			else {
+				*g = refreshGame(game);
+			}
 		} break;
 		case KEY_EXIT:
 		case 'q': {
@@ -37,7 +46,6 @@ bool update(MinesweeperGame* game){
 }
 
 void render(MinesweeperGame* game){
-	// TODO: print grid
 	// TODO: print status
 	attron(COLOR_PAIR(1));
 	printw("Ahmet Tarik Duyar \n");
@@ -49,8 +57,10 @@ void render(MinesweeperGame* game){
 				case OPENED: {
 					if (c->value == 'B')
 						col = COLOR_PAIR(4) | A_BOLD;
-					else
+					else if(c->value-'0' < 4)
 						col = COLOR_PAIR(c->value-'0' + 5);
+					else
+						col = COLOR_PAIR(9);
 				} break;
 				case CLOSE: {
 					col = COLOR_PAIR(0);
@@ -68,7 +78,7 @@ void render(MinesweeperGame* game){
 					printw(" %c ", c->value);
 				} break;
 				case CLOSE: {
-					printw(" X ");
+					printw(" # ");
 				} break;
 				case FLAGGED: {
 					printw(" F ");
@@ -78,6 +88,11 @@ void render(MinesweeperGame* game){
 		}
 		printw("\n");
 	}
+	printw("--------------------\n");
+	printw("Flagged: %d\n", game->status.flagedCellCount);
+	printw("Revealed: %d\n", game->status.revealedCellCount);
+	printw("Time: %ld\n", time(NULL) - game->status.startTime);
+	printw("State: %s\n", game->status.state == YOU_WIN ? "YOU WIN" : game->status.state == YOU_GAMEOVER ? "YOU GAMEOVER" : "PLAYING");
 
 }
 
@@ -86,15 +101,12 @@ void render(MinesweeperGame* game){
 #define GRAY_2 10
 #define GRAY_3 11
 #define GRAY_4 12
-#define GRAY_5 13
-#define GRAY_6 14
-#define GRAY_7 15
-#define GRAY_8 16
-#define GRAY_9 17
 int main(void) {
 	srand(time(NULL));
 
 	GameSettings settings = { .difficulty= EASY };
+	// GameSettings settings = { .difficulty= MEDIUM };
+	// GameSettings settings = { .difficulty= HARD };
 	MinesweeperGame* game = newGame(settings);
 
 	initscr();
@@ -113,27 +125,17 @@ int main(void) {
     init_color(GRAY_0, 50, 50, 50);
     init_color(GRAY_1, 200, 200, 200);
     init_color(GRAY_2, 200, 200, 500);
-    init_color(GRAY_3, 700, 200, 200);
-    init_color(GRAY_4, 800, 200, 200);
-    // init_color(GRAY_5, 250, 250, 250);
-    // init_color(GRAY_6, 250, 250, 250);
-    // init_color(GRAY_7, 250, 250, 250);
-    // init_color(GRAY_8, 250, 250, 250);
-    // init_color(GRAY_9, 250, 250, 250);
+    init_color(GRAY_3, 500, 200, 300);
+    init_color(GRAY_4, 700, 200, 200);
     init_pair(1, -1, -1);
     init_pair(2, COLOR_YELLOW, COLOR_BLACK); // cursor
-    init_pair(3, COLOR_RED, -1); // flag
+    init_pair(3, COLOR_GREEN, -1); // flag
     init_pair(4, COLOR_BLUE, -1); // BOMB
     init_pair(5, GRAY_0, -1);
     init_pair(6, GRAY_1, -1);
     init_pair(7, GRAY_2, -1);
     init_pair(8, GRAY_3, -1);
     init_pair(9, GRAY_4, -1);
-    // init_pair(10, GRAY_5, -1);
-    // init_pair(11, GRAY_6, -1);
-    // init_pair(12, GRAY_7, -1);
-    // init_pair(13, GRAY_8, -1);
-    // init_pair(14, GRAY_9, -1);
 
 	cbreak();
 	noecho();
@@ -144,8 +146,9 @@ int main(void) {
 		clear();
 		render(game);
 		refresh();
-		isRuning = update(game);
+		isRuning = update(&game);
 	}
+	freeGame(game);
 	endwin();
 	return 0;
 }

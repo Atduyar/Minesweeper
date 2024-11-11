@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define GET_CELL(b, x, y) (b->grid[(y) * b->height + (x)])
+#define GET_CELL(b, x, y) (b->grid[(y) * b->width + (x)])
 
 typedef enum {
 	CLOSE = 0,
@@ -61,6 +61,7 @@ MinesweeperGame* refreshGame(MinesweeperGame* game);
 void freeGame(MinesweeperGame* game);
 
 void reveal(MinesweeperGame* game, int x, int y);
+void revealAllMines(MinesweeperGame* game);
 
 void placeFlag(MinesweeperGame* game, int x, int y);
 void unplaceFlag(MinesweeperGame* game, int x, int y);
