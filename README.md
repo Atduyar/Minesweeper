@@ -70,7 +70,8 @@ C is simple procedural programming language and it has very limited features. Th
 The code will have a lot of boilerplate. In C#, Python and JavaScript, you can easyly create and call toString method for a class. While in C, you have to write a separate function and call it each time you want to print a struct.--->
 ### C#
 C# is an object-oriented programming language, meaning this version of the Minesweeper game will use classes and polymorphism.
-If we do opt for using multiple classes instead, they will have different Print and Reveal methods. `Cell` class will have characteristics of tiles/cells, allowing each tile to be empty, a number or a mine tile. `Board` class will be the visual representation of the game screen. `StartScreen` class will be a welcome screen and will allow the player to select a difficulty.
+Although for easier comparison of basic differences between C# and other two programming languages, we will try to avoid using multiple classes (for now).
+If we do opt for using multiple classes instead, they will have different Print and Reveal methods. Cell class will have characteristics of tiles/cells, allowing each tile to be empty, a number or a mine tile. Board class will be the visual representation of the game screen. StartScreen class will be a welcome screen and will allow the player to select a difficulty.
 ### JavaScript
 JavaScript is multi-paradigm programming language. Minesweeper can be written in functional programming style or object oriented programming style.
 JavaScript's biggest advantage is that it has easy-to-use package system. We can simply install a package like `blessed (A high-level terminal interface library for node.js.)` to create terminal games.
