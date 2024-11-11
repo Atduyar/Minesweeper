@@ -1,0 +1,22 @@
+{
+	"$schema": "https://raw.githubusercontent.com/mfussenegger/dapconfig-schema/master/dapconfig-schema.json",
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "Launch Debuger in external terminal",
+			"cwd": "${workspaceFolder}",
+			"stopAtEntry": false,
+			"program": "./bin/Debug/minesweeper",
+			"console": "externalTerminal"
+		},
+		{
+			"type": "codelldb",
+			"request": "launch",
+			"name": "Launch Debuger in Debug mode",
+			"cwd": "${workspaceFolder}",
+			"program": "./bin/Debug/minesweeper"
+		}
+	]
+}
