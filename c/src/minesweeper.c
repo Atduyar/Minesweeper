@@ -3,8 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "libmine/include/libmine.h"
+#define LOG_USE_COLOR
+#define ATD_LOGGER_IMPLEMENTATION
+#include "logger.h"
 
-int cur_x = 0, cur_y =0;
+size_t cur_x = 0;
+size_t cur_y = 0;
 
 bool update(MinesweeperGame** g){
 	MinesweeperGame* game = *g;
@@ -25,6 +29,10 @@ bool update(MinesweeperGame** g){
 		case 'f': {
 			toggleFlag(game, cur_x, cur_y);
 		} break;
+		case 'R':
+		case 'r': {
+			*g = refreshGame(game);
+		} break;
 		case '\n':
 		case KEY_ENTER: {
 			if (game->status.state == WAITING_FIRST_MOVE || game->status.state == PLAYING) {
@@ -32,9 +40,6 @@ bool update(MinesweeperGame** g){
 				if (game->status.state == YOU_WIN || game->status.state == YOU_GAMEOVER) {
 					revealAllMines(game);
 				}
-			}
-			else {
-				*g = refreshGame(game);
 			}
 		} break;
 		case KEY_EXIT:
@@ -103,6 +108,10 @@ void render(MinesweeperGame* game){
 #define GRAY_4 12
 int main(void) {
 	srand(time(NULL));
+
+	log_add_fp(fopen("debug.log", "a"), LOG_DEBUG);
+	log_set_quiet(true);
+	log_debug("Main called.");
 
 	GameSettings settings = { .difficulty= EASY };
 	// GameSettings settings = { .difficulty= MEDIUM };

@@ -6,6 +6,7 @@
 			"type": "codelldb",
 			"request": "launch",
 			"name": "Launch Debuger in external terminal",
+            "preLaunchTask": "bearMake",
 			"cwd": "${workspaceFolder}",
 			"stopAtEntry": false,
 			"program": "./bin/Debug/minesweeper",

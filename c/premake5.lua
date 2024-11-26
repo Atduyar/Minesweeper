@@ -3,6 +3,9 @@ workspace "test" do
 	configurations { "Debug", "Release" }
 	language "C"
 	targetdir "bin/%{cfg.buildcfg}"
+	filter "configurations:Debug" do
+		warnings "Extra"
+	end
 end
 
 project "minesweeper" do
@@ -25,7 +28,7 @@ end
 project "libmine" do
 	kind "StaticLib"
 	files { "src/libmine/src/*.c" }
-	includedirs { "src/libmine/include", "src/libmine/src" }
+	includedirs { "include", "src/libmine/include", "src/libmine/src" }
 
 	filter "configurations:Release" do
 		optimize "On"

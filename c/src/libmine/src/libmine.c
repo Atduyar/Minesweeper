@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "logger.h"
 
 static void setupSettings(GameSettings* settings) {
 	switch (settings->difficulty) {
@@ -32,10 +33,11 @@ static void setupSettings(GameSettings* settings) {
 				settings->mines = 10;
 			}
 		} break;
-	
 	}
 }
+
 MinesweeperGame* newGame(GameSettings settings) {
+	log_debug("New Game created.");
 	setupSettings(&settings);
 	MinesweeperGame* game = malloc(sizeof(MinesweeperGame));
 	game->settings = settings;
@@ -52,6 +54,7 @@ MinesweeperGame* newGame(GameSettings settings) {
 }
 
 void freeGame(MinesweeperGame* game) {
+	log_debug("Game freed.");
 	free(game->board);
 	free(game);
 }
@@ -75,8 +78,9 @@ static uint32_t countAdjacentMines(MinesweeperGame* game, int x, int y) {
 }
 
 static void generateMines(MinesweeperGame* game, int x, int y) {
+	log_debug("Generate Mines called. %d, %d", x, y);
 	uint32_t avaibleCells = game->board->height * game->board->width - 1;
-	uint32_t forbidenCell = y*game->board->width + game->board->height;
+	uint32_t forbidenCell = y*game->board->width + x;
 
 	// place Bombs
 	for(uint32_t remainingZeros = game->settings.mines; remainingZeros > 0 ; --remainingZeros) {
@@ -105,6 +109,7 @@ static void generateMines(MinesweeperGame* game, int x, int y) {
 }
 
 void reveal(MinesweeperGame* game, int x, int y) {
+	log_debug("Reveal called. %d, %d", x, y);
 	if (game->status.state == WAITING_FIRST_MOVE) {
 		generateMines(game, x, y);
 		game->status.state = PLAYING;
@@ -121,14 +126,15 @@ void reveal(MinesweeperGame* game, int x, int y) {
 		case CLOSE: {
 			cell->status = OPENED;
 			if(cell->value == 'B') {
+				log_debug("Game Over");
 				game->status.state = YOU_GAMEOVER;
 				return;
 			}
 			else if (cell->value == '0') {
 				for (int32_t ry = -1; ry <= 1; ry++) {
 					for (int32_t rx = -1; rx <= 1; rx++) {
-						if (x+rx < 0 || x+rx >= game->board->width ||
-							y+ry < 0 || y+ry >= game->board->height
+						if (x+rx < 0 || x+rx >= (int32_t)game->board->width ||
+							y+ry < 0 || y+ry >= (int32_t)game->board->height
 						) {
 							continue;
 						}
@@ -139,6 +145,7 @@ void reveal(MinesweeperGame* game, int x, int y) {
 			game->status.revealedCellCount++;
 			uint32_t remeningCell = game->board->width * game->board->height - game->settings.mines;
 			if (remeningCell == 0) {
+				log_debug("You Win");
 				game->status.state = YOU_WIN;
 			}
 		} break;
@@ -146,6 +153,7 @@ void reveal(MinesweeperGame* game, int x, int y) {
 }
 
 void revealAllMines(MinesweeperGame* game) {
+	log_debug("Reveal All Mines called.");
 	for (size_t y = 0; y < game->board->height; y++) {
 		for (size_t x = 0; x < game->board->width; x++) {
 			Cell* c = &GET_CELL(game->board, x, y);

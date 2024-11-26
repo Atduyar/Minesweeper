@@ -3,3 +3,6 @@ c/obj
 c/build
 Makefile
 *.make
+.cache/
+compile_commands.json
+*.log
