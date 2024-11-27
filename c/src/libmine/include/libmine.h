@@ -67,3 +67,5 @@ void placeFlag(MinesweeperGame* game, int x, int y);
 void unplaceFlag(MinesweeperGame* game, int x, int y);
 void toggleFlag(MinesweeperGame* game, int x, int y);
 
+Cell* getCell(Board* board, size_t x, size_t y);
+

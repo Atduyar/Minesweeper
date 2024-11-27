@@ -93,12 +93,13 @@ void render(MinesweeperGame* game){
 		}
 		printw("\n");
 	}
-	printw("--------------------\n");
+	printw("---------STATUS-----------\n");
 	printw("Flagged: %d\n", game->status.flagedCellCount);
 	printw("Revealed: %d\n", game->status.revealedCellCount);
 	printw("Time: %ld\n", time(NULL) - game->status.startTime);
 	printw("State: %s\n", game->status.state == YOU_WIN ? "YOU WIN" : game->status.state == YOU_GAMEOVER ? "YOU GAMEOVER" : "PLAYING");
-
+	printw("---------SETTINGS---------\n");
+	printw("Width: %zu, Height: %zu, Mines: %u\n", game->settings.width, game->settings.height, game->settings.mines);
 }
 
 #define GRAY_0 8
@@ -113,7 +114,9 @@ int main(void) {
 	log_set_quiet(true);
 	log_debug("Main called.");
 
-	GameSettings settings = { .difficulty= EASY };
+	// GameSettings settings = { .difficulty=CUSTOM, .width=10, .height=10, .mines=100 };
+	GameSettings settings = { .difficulty=CUSTOM, .width=10, .height=10, .mines=98 };
+	// GameSettings settings = { .difficulty= EASY };
 	// GameSettings settings = { .difficulty= MEDIUM };
 	// GameSettings settings = { .difficulty= HARD };
 	MinesweeperGame* game = newGame(settings);
@@ -139,7 +142,7 @@ int main(void) {
     init_pair(1, -1, -1);
     init_pair(2, COLOR_YELLOW, COLOR_BLACK); // cursor
     init_pair(3, COLOR_GREEN, -1); // flag
-    init_pair(4, COLOR_BLUE, -1); // BOMB
+    init_pair(4, COLOR_RED, -1); // BOMB
     init_pair(5, GRAY_0, -1);
     init_pair(6, GRAY_1, -1);
     init_pair(7, GRAY_2, -1);
