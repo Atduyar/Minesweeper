@@ -56,7 +56,7 @@ void render(MinesweeperGame* game){
 	printw("Ahmet Tarik Duyar \n");
 	for (size_t y = 0; y < game->board->height; y++) {
 		for (size_t x = 0; x < game->board->width; x++) {
-			Cell* c = &GET_CELL(game->board, x, y);
+			Cell* c = getCell(game->board, x, y);
 			int col = COLOR_PAIR(-1);
 			switch (c->status) {
 				case OPENED: {
@@ -115,7 +115,8 @@ int main(void) {
 	log_debug("Main called.");
 
 	// GameSettings settings = { .difficulty=CUSTOM, .width=10, .height=10, .mines=100 };
-	GameSettings settings = { .difficulty=CUSTOM, .width=10, .height=10, .mines=98 };
+	// GameSettings settings = { .difficulty=CUSTOM, .width=1, .height=1, .mines=1, .smartReval=true };
+	GameSettings settings = { .difficulty=CUSTOM, .width=9, .height=9, .mines=10, .smartReval=true };
 	// GameSettings settings = { .difficulty= EASY };
 	// GameSettings settings = { .difficulty= MEDIUM };
 	// GameSettings settings = { .difficulty= HARD };

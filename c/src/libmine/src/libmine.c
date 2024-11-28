@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include "logger.h"
 
 static int32_t minI32(int32_t a, int32_t b) {
@@ -13,8 +14,8 @@ static int32_t maxI32(int32_t a, int32_t b) {
 	return a > b ? a : b;
 }
 
-Cell* getCell(Board* board, size_t x, size_t y) {
-	if (x < 0 || y < 0 || x >= board->width || y >= board->height) {
+Cell* getCell(Board* board, uint32_t x, uint32_t y) {
+	if (x >= board->width || y >= board->height) {
 		return NULL;
 	}
 	return &board->grid[y * board->width + x];
@@ -38,14 +39,14 @@ static void setupSettings(GameSettings* settings) {
 			settings->mines = 99;
 		} break;
 		case CUSTOM: {
-			if (settings->width < 9) {
-				settings->width = 9;
+			if (settings->width < MIN_MINESWEEPER_WIDTH) {
+				settings->width = MIN_MINESWEEPER_WIDTH;
 			}
-			if (settings->height < 9) {
-				settings->height = 9;
+			if (settings->height < MIN_MINESWEEPER_HEIGHT) {
+				settings->height = MIN_MINESWEEPER_HEIGHT;
 			}
-			if (settings->mines < 10) {
-				settings->mines = 10;
+			if (settings->mines < MIN_MINESWEEPER_MINE_COUNT) {
+				settings->mines = MIN_MINESWEEPER_MINE_COUNT;
 			}
 		} break;
 	}
@@ -60,6 +61,7 @@ MinesweeperGame* newGame(GameSettings settings) {
 	game->status.state = WAITING_FIRST_MOVE;
 	game->status.flagedCellCount = 0;
 	game->status.revealedCellCount = 0;
+
 	// The board will generated when the first move made.
 	game->board = malloc(sizeof(Board) + settings.width * settings.height * sizeof(Cell));
 	memset(game->board, 0, sizeof(Board) + settings.width * settings.height * sizeof(Cell));
@@ -83,11 +85,11 @@ MinesweeperGame* refreshGame(MinesweeperGame* game) {
 
 static uint32_t countAdjacentMines(MinesweeperGame* game, int x, int y) {
 	uint32_t mineCount = 0;
-	const size_t max_x = minI32(x+1, game->board->width-1);
-	const size_t max_y = minI32(y+1, game->board->height-1);
+	const uint32_t max_x = minI32(x+1, game->board->width-1);
+	const uint32_t max_y = minI32(y+1, game->board->height-1);
 
-	for (size_t ry = maxI32(y-1, 0); ry <= max_y; ry++) {
-		for (size_t rx = maxI32(x-1, 0); rx <= max_x; rx++) {
+	for (uint32_t ry = maxI32(y-1, 0); ry <= max_y; ry++) {
+		for (uint32_t rx = maxI32(x-1, 0); rx <= max_x; rx++) {
 			Cell* c = getCell(game->board, rx, ry);
 			if (c->value == 'B')
 				mineCount++;
@@ -101,7 +103,7 @@ static void logBoard(MinesweeperGame* game) {
 		char* buf = malloc(sizeof(char) * game->board->width*2+1);
 		buf[game->board->width*2] = '\0';
 		for (size_t x = 0; x < game->board->width; x++) {
-			Cell* c = &GET_CELL(game->board, x, y);
+			Cell* c = getCell(game->board, x, y);
 			buf[x*2] = c->value?c->value:'-';
 			buf[x*2+1] = ' ';
 		}
@@ -109,7 +111,7 @@ static void logBoard(MinesweeperGame* game) {
 	}
 }
 
-static void generateMines(MinesweeperGame* game, int x, int y) {
+static void generateMines(MinesweeperGame* game, uint32_t x, uint32_t y) {
 	log_debug("Generate Mines called. %d, %d", x, y);
 	uint32_t avaibleCells = game->board->height * game->board->width - 1;
 	uint32_t forbidenCell = y*game->board->width + x;
@@ -127,7 +129,7 @@ static void generateMines(MinesweeperGame* game, int x, int y) {
 
 		// find random_cell_number th cell among non mined cells.
 		for (size_t random_cell_pos = 0; random_cell_pos < game->board->width * game->board->height; random_cell_pos++) {
-			if (GET_CELL(game->board, random_cell_pos%game->board->width, random_cell_pos/game->board->width).value == 'B') {
+			if (getCell(game->board, random_cell_pos%game->board->width, random_cell_pos/game->board->width)->value == 'B') {
 				continue;
 			}
 			if (random_cell_pos == forbidenCell) {
@@ -148,7 +150,7 @@ static void generateMines(MinesweeperGame* game, int x, int y) {
 	// place number
 	for (size_t y = 0; y < game->board->height; y++) {
 		for (size_t x = 0; x < game->board->width; x++) {
-			Cell* c = &GET_CELL(game->board, x, y);
+			Cell* c = getCell(game->board, x, y);
 			if(c->value == 'B')
 				continue;
 			c->value = (uint8_t)'0' + countAdjacentMines(game, x, y);
@@ -159,13 +161,38 @@ static void generateMines(MinesweeperGame* game, int x, int y) {
 	logBoard(game);
 }
 
-void reveal(MinesweeperGame* game, int x, int y) {
-	log_debug("Reveal called. %d, %d", x, y);
+static void autoReveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* cell = getCell(game->board, x, y);
+	if (!cell) {
+		return;
+	}
+	if (cell->value != '0') {
+		return;
+	}
+	const size_t max_x = minI32(x+1, game->board->width-1);
+	const size_t max_y = minI32(y+1, game->board->height-1);
+
+	for (size_t ry = maxI32(y-1, 0); ry <= max_y; ry++) {
+		for (size_t rx = maxI32(x-1, 0); rx <= max_x; rx++) {
+			if (rx >= game->board->width ||
+				ry >= game->board->height
+			) {
+				continue;
+			}
+			reveal(game, rx, ry);
+		}
+	}
+}
+
+void reveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* cell = getCell(game->board, x, y);
+	if (!cell) {
+		return;
+	}
 	if (game->status.state == WAITING_FIRST_MOVE) {
 		generateMines(game, x, y);
 		game->status.state = PLAYING;
 	}
-	Cell* cell = &GET_CELL(game->board, x, y);
 	switch (cell->status) {
 		case FLAGGED: {
 			return;
@@ -175,6 +202,7 @@ void reveal(MinesweeperGame* game, int x, int y) {
 			return;
 		} break;
 		case CLOSE: {
+			log_debug("Reveal called. %d, %d", x, y);
 			cell->status = OPENED;
 			if(cell->value == 'B') {
 				log_debug("Game Over");
@@ -182,15 +210,10 @@ void reveal(MinesweeperGame* game, int x, int y) {
 				return;
 			}
 			else if (cell->value == '0') {
-				for (int32_t ry = -1; ry <= 1; ry++) {
-					for (int32_t rx = -1; rx <= 1; rx++) {
-						if (x+rx < 0 || x+rx >= (int32_t)game->board->width ||
-							y+ry < 0 || y+ry >= (int32_t)game->board->height
-						) {
-							continue;
-						}
-						reveal(game, x+rx, y+ry);
-					}
+				if(game->settings.smartReval){
+					log_debug("SmartReveal Started.");
+					autoReveal(game, x, y);
+					log_debug("SmartReveal Ended.");
 				}
 			}
 			game->status.revealedCellCount++;
@@ -204,10 +227,10 @@ void reveal(MinesweeperGame* game, int x, int y) {
 }
 
 void revealAllMines(MinesweeperGame* game) {
-	log_debug("Reveal All Mines called.");
+	log_debug("All Mines Revealed.");
 	for (size_t y = 0; y < game->board->height; y++) {
 		for (size_t x = 0; x < game->board->width; x++) {
-			Cell* c = &GET_CELL(game->board, x, y);
+			Cell* c = getCell(game->board, x, y);
 			if (c->value == 'B') {
 				c->status = OPENED;
 			}
@@ -215,9 +238,11 @@ void revealAllMines(MinesweeperGame* game) {
 	}
 }
 
-void placeFlag(MinesweeperGame* game, int x, int y) {
-	// FIX: Bounce check
-	Cell* cell = &GET_CELL(game->board, x, y);
+void placeFlag(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* cell = getCell(game->board, x, y);
+	if(!cell){
+		return;
+	}
 	switch (cell->status) {
 		case FLAGGED: {
 			return;
@@ -231,9 +256,11 @@ void placeFlag(MinesweeperGame* game, int x, int y) {
 		} break;
 	}
 }
-void unplaceFlag(MinesweeperGame* game, int x, int y) {
-	// FIX: Bounce check
-	Cell* cell = &GET_CELL(game->board, x, y);
+void unplaceFlag(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* cell = getCell(game->board, x, y);
+	if(!cell){
+		return;
+	}
 	switch (cell->status) {
 		case CLOSE: {
 			return;
@@ -248,9 +275,11 @@ void unplaceFlag(MinesweeperGame* game, int x, int y) {
 	}
 }
 
-void toggleFlag(MinesweeperGame* game, int x, int y) {
-	// FIX: Bounce check
-	Cell* cell = &GET_CELL(game->board, x, y);
+void toggleFlag(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* cell = getCell(game->board, x, y);
+	if(!cell){
+		return;
+	}
 	switch (cell->status) {
 		case OPENED: {
 			return;

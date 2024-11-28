@@ -4,7 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define GET_CELL(b, x, y) (b->grid[(y) * b->width + (x)])
+#define MIN_MINESWEEPER_HEIGHT 5 
+#define MIN_MINESWEEPER_WIDTH 5 
+#define MIN_MINESWEEPER_MINE_COUNT 3 
 
 typedef enum {
 	CLOSE = 0,
@@ -60,12 +62,12 @@ MinesweeperGame* newGame(GameSettings settings);
 MinesweeperGame* refreshGame(MinesweeperGame* game);
 void freeGame(MinesweeperGame* game);
 
-void reveal(MinesweeperGame* game, int x, int y);
+void reveal(MinesweeperGame* game, uint32_t x, uint32_t y);
 void revealAllMines(MinesweeperGame* game);
 
-void placeFlag(MinesweeperGame* game, int x, int y);
-void unplaceFlag(MinesweeperGame* game, int x, int y);
-void toggleFlag(MinesweeperGame* game, int x, int y);
+void placeFlag(MinesweeperGame* game, uint32_t x, uint32_t y);
+void unplaceFlag(MinesweeperGame* game, uint32_t x, uint32_t y);
+void toggleFlag(MinesweeperGame* game, uint32_t x, uint32_t y);
 
-Cell* getCell(Board* board, size_t x, size_t y);
+Cell* getCell(Board* board, uint32_t x, uint32_t y);
 
