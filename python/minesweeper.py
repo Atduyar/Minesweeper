@@ -36,21 +36,38 @@ class Cell:
             if self.isMine:
                 return term.red+" B " + term.normal
             else:
-                return " "+ str(self.number) + " "
+                match self.number:
+                    case 0:
+                        return "   "
+                        #return term.black+" "+ str(self.number) + " "+term.normal
+                    case 1:
+                        return term.black+" "+ str(self.number) + " "+term.normal
+                    case 2:
+                        return term.royalblue+" "+ str(self.number) + " "+term.normal
+                    case 3:
+                        return term.maroon+" "+ str(self.number) + " "+term.normal
+                    case _:
+                        return term.red+" "+ str(self.number) + " "+term.normal
+    
     def setMine (self):
         self.isMine=True
         self.number=None
+
+    def setNumber (self,num):
+        self.isMine=False
+        self.number=num
 
 class Board:
     def __init__(self,settings):
         self.settings=settings
         self.cells=[]
+        # Creating cells
         for y in range(0,self.settings.height):
             self.cells.append([])
             for x in range(0,self.settings.width):
                 self.cells[y].append(Cell(False, 0))
                 self.cells[y][x].isOpened=True
-
+        #Creating mines
         for _ in range (0,self.settings.mine):
             while True:
                 randX = random.randint(0,self.settings.width-1)
@@ -60,6 +77,18 @@ class Board:
                 else:
                     self.cells[randY][randX].setMine()
                     break
+        #Creating numbers
+        for y in range(0,self.settings.height):
+            for x in range(0,self.settings.width):
+                if self.cells[y][x].isMine:
+                    continue
+                mineCount=0
+                for ry in range(max(0,y-1),min(y+2,self.settings.height)):
+                    for rx in range(max(0,x-1),min(x+2,self.settings.width)):
+                        if self.cells[ry][rx].isMine:
+                            mineCount+=1
+                self.cells[y][x].setNumber(mineCount)
+
 
 
     def render(self):
@@ -74,10 +103,10 @@ term = Terminal()
 print(term.home + term.clear )
 print(term.black_on_darkkhaki(term.center('Minesweeper')))
 
-
-board=Board(GameSettings("hard"))
+board=Board(GameSettings("easy"))
 board.render()
 
+print(term.black_on_darkkhaki(term.center('Status')))
 
 with term.cbreak(), term.hidden_cursor():
     inp = term.inkey()
