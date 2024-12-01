@@ -63,7 +63,6 @@ MinesweeperGame* refreshGame(MinesweeperGame* game);
 void freeGame(MinesweeperGame* game);
 
 void reveal(MinesweeperGame* game, uint32_t x, uint32_t y);
-void revealAllMines(MinesweeperGame* game);
 
 void placeFlag(MinesweeperGame* game, uint32_t x, uint32_t y);
 void unplaceFlag(MinesweeperGame* game, uint32_t x, uint32_t y);

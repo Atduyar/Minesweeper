@@ -161,6 +161,18 @@ static void generateMines(MinesweeperGame* game, uint32_t x, uint32_t y) {
 	logBoard(game);
 }
 
+static void revealAllMines(MinesweeperGame* game) {
+	log_debug("All Mines Revealed.");
+	for (size_t y = 0; y < game->board->height; y++) {
+		for (size_t x = 0; x < game->board->width; x++) {
+			Cell* c = getCell(game->board, x, y);
+			if (c->value == 'B') {
+				c->status = OPENED;
+			}
+		}
+	}
+}
+
 static void autoReveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 	Cell* cell = getCell(game->board, x, y);
 	if (!cell) {
@@ -184,6 +196,37 @@ static void autoReveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 	}
 }
 
+void smartReveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
+	Cell* centerCell = getCell(game->board, x, y);
+	if (!centerCell || centerCell->status != OPENED) {
+		return;
+	}
+	uint32_t flaggedCount = 0;
+	const uint32_t max_x = minI32(x+1, game->board->width-1);
+	const uint32_t max_y = minI32(y+1, game->board->height-1);
+
+	for (uint32_t ry = maxI32(y-1, 0); ry <= max_y; ry++) {
+		for (uint32_t rx = maxI32(x-1, 0); rx <= max_x; rx++) {
+			Cell* c = getCell(game->board, rx, ry);
+			if (c->status == FLAGGED)
+				flaggedCount++;
+		}
+	}
+	if ((char)('0' + flaggedCount) != centerCell->value) {
+		log_debug("There are not enough flaged cell for smart reveal.");
+		return;
+	}
+
+	for (uint32_t ry = maxI32(y-1, 0); ry <= max_y; ry++) {
+		for (uint32_t rx = maxI32(x-1, 0); rx <= max_x; rx++) {
+			Cell* c = getCell(game->board, rx, ry);
+			if (c->status == CLOSE){
+				reveal(game, rx, ry);
+			}
+		}
+	}
+}
+
 void reveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 	Cell* cell = getCell(game->board, x, y);
 	if (!cell) {
@@ -198,7 +241,9 @@ void reveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 			return;
 		} break;
 		case OPENED: {
-			// TODO: Smart Reveal
+			if (game->settings.smartReval) {
+				smartReveal(game, x, y);
+			}
 			return;
 		} break;
 		case CLOSE: {
@@ -207,14 +252,13 @@ void reveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 			if(cell->value == 'B') {
 				log_debug("Game Over");
 				game->status.state = YOU_GAMEOVER;
+				revealAllMines(game);
 				return;
 			}
 			else if (cell->value == '0') {
-				if(game->settings.smartReval){
-					log_debug("SmartReveal Started.");
-					autoReveal(game, x, y);
-					log_debug("SmartReveal Ended.");
-				}
+				log_debug("AutoReveal Started.");
+				autoReveal(game, x, y);
+				log_debug("AutoReveal Ended.");
 			}
 			game->status.revealedCellCount++;
 			uint32_t neededCellCount = game->board->width * game->board->height - game->settings.mines;
@@ -223,18 +267,6 @@ void reveal(MinesweeperGame* game, uint32_t x, uint32_t y) {
 				game->status.state = YOU_WIN;
 			}
 		} break;
-	}
-}
-
-void revealAllMines(MinesweeperGame* game) {
-	log_debug("All Mines Revealed.");
-	for (size_t y = 0; y < game->board->height; y++) {
-		for (size_t x = 0; x < game->board->width; x++) {
-			Cell* c = getCell(game->board, x, y);
-			if (c->value == 'B') {
-				c->status = OPENED;
-			}
-		}
 	}
 }
 
