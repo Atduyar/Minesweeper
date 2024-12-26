@@ -6,3 +6,4 @@ Makefile
 .cache/
 compile_commands.json
 *.log
+js/node_modules/

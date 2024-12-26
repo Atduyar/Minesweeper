@@ -1,0 +1,15 @@
+{
+	"name": "minesweeper",
+	"version": "1.0.0",
+	"description": "Best Minesweeper on the planet.",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "Ahmet Tarik Duyar",
+	"license": "MIT",
+	"dependencies": {
+		"blessed": "^0.1.81"
+	}
+}
