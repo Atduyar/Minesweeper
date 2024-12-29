@@ -46,8 +46,8 @@ export class Board {
 		}
 	}
 
-	render(screen) {
-		screen.children.forEach(child => screen.remove(child)); // Clear existing elements
+	render(boardBox) {
+		boardBox.children.forEach(child => boardBox.remove(child)); // Clear existing elements
 		for (let y = 0; y < this.settings.height; y++) {
 			let row = '';
 			for (let x = 0; x < this.settings.width; x++) {
@@ -57,14 +57,14 @@ export class Board {
 					row += this.cells[y][x];
 				}
 			}
-			screen.append(blessed.text({
+			boardBox.append(blessed.text({
 				top: y, // Position each row at a unique vertical position
 				left: 0,
 				content: row,
 				tags: true,
 			}));
 		}
-		screen.render(); // Refresh the screen
+		// boardBox.render(); // Refresh the screen
 	}
 
 	toggleFlag() {
@@ -88,9 +88,40 @@ export class Board {
 		}
 	}
 
-	openCell() {
-		const cell = this.cells[this.cursor[1]][this.cursor[0]];
-		if (cell.isOpened) return;
+	openCell(x, y) {
+		if (x === undefined || y === undefined) {
+			x = this.cursor[0];
+			y = this.cursor[1];
+		}
+		if (this.gameStatus !== 'playing') return;
+		const cell = this.cells[y][x];
+		if (cell.isFlagged) {
+			return;
+		}
+		if (cell.isOpened) {
+			if (cell.number === 0) {
+				return;
+			}
+			let flaggedCount = 0;
+			for (let ry = Math.max(0, y - 1); ry <= Math.min(y + 1, this.settings.height - 1); ry++) {
+				for (let rx = Math.max(0, x - 1); rx <= Math.min(x + 1, this.settings.width - 1); rx++) {
+					if (this.cells[ry][rx].isFlagged) {
+						flaggedCount++;
+					}
+				}
+			}
+			if (flaggedCount !== cell.number) {
+				return;
+			}
+			for (let ry = Math.max(0, y - 1); ry <= Math.min(y + 1, this.settings.height - 1); ry++) {
+				for (let rx = Math.max(0, x - 1); rx <= Math.min(x + 1, this.settings.width - 1); rx++) {
+					if (!this.cells[ry][rx].isFlagged && !this.cells[ry][rx].isOpened) {
+						this.openCell(rx, ry);
+					}
+				}
+			}
+
+		}
 		if (this.isFirstMove) {
 			this.isFirstMove = false;
 			if (cell.isMine) {
@@ -103,8 +134,15 @@ export class Board {
 		this.openedCellsCount++;
 		if (cell.isMine) {
 			this.gameStatus = 'lose';
+			for (let y = 0; y < this.settings.height; y++) {
+				for (let x = 0; x < this.settings.width; x++) {
+					if (this.cells[y][x].isMine) {
+						this.cells[y][x].isOpened = true;
+					}
+				}
+			}
 		} else if (cell.number === 0) {
-			this.openAdjacentCells(this.cursor[0], this.cursor[1]);
+			this.openAdjacentCells(x, y);
 		}
 		if (this.openedCellsCount === this.settings.width * this.settings.height - this.settings.mine) {
 			this.gameStatus = 'win';

@@ -1,0 +1,16 @@
+{
+	"$schema": "https://raw.githubusercontent.com/mfussenegger/dapconfig-schema/master/dapconfig-schema.json",
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Launch via npm",
+			"type": "node2",
+			"request": "launch",
+			"cwd": "${workspaceFolder}",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "start"],
+			"stopAtEntry": false,
+			"console": "externalTerminal"
+		}
+	]
+}

@@ -22,7 +22,7 @@ export class GameSettings {
 				this.mine = mine;
 				break;
 			default:
-				throw new Error('Invalid difficulty setting');
+				throw new Error('Invalid difficulty setting: ' + difficulty);
 		}
 	}
 }
