@@ -73,21 +73,6 @@ export class Board {
 		cell.isFlagged = !cell.isFlagged;
 	}
 
-	openAdjacentCells(x, y) {
-		for (let ry = Math.max(0, y - 1); ry <= Math.min(y + 1, this.settings.height - 1); ry++) {
-			for (let rx = Math.max(0, x - 1); rx <= Math.min(x + 1, this.settings.width - 1); rx++) {
-				if (this.cells[ry][rx].isOpened) {
-					continue;
-				}
-				this.cells[ry][rx].isOpened = true;
-				this.openedCellsCount++;
-				if (this.cells[ry][rx].number === 0) {
-					this.openAdjacentCells(rx, ry);
-				}
-			}
-		}
-	}
-
 	openCell(x, y) {
 		if (x === undefined || y === undefined) {
 			x = this.cursor[0];
@@ -120,7 +105,7 @@ export class Board {
 					}
 				}
 			}
-
+			return;
 		}
 		if (this.isFirstMove) {
 			this.isFirstMove = false;
@@ -141,8 +126,16 @@ export class Board {
 					}
 				}
 			}
+			return;
 		} else if (cell.number === 0) {
-			this.openAdjacentCells(x, y);
+			for (let ry = Math.max(0, y - 1); ry <= Math.min(y + 1, this.settings.height - 1); ry++) {
+				for (let rx = Math.max(0, x - 1); rx <= Math.min(x + 1, this.settings.width - 1); rx++) {
+					if (this.cells[ry][rx].isOpened) {
+						continue;
+					}
+					this.openCell(rx, ry);
+				}
+			}
 		}
 		if (this.openedCellsCount === this.settings.width * this.settings.height - this.settings.mine) {
 			this.gameStatus = 'win';
