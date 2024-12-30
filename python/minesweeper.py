@@ -183,7 +183,6 @@ class Board:
         if cell.number == 0:
             for ry in range(max(0, y-1), min(y+2, self.settings.height)):
                 for rx in range(max(0, x-1), min(x+2, self.settings.width)):
-                    cell = self.cells[ry][rx]
                     self.reveal(rx, ry)
 
         self.isFirstMove = False
