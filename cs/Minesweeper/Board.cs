@@ -123,7 +123,7 @@ namespace Minesweeper
 
         public void openCell()
         {
-            openCell(this.cursor.X, this.cursor.X)
+            this.openCell(this.cursor.X, this.cursor.X);
         }
 
         public void openCell(int x, int y)
