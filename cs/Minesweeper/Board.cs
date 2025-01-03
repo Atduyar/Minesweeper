@@ -121,13 +121,13 @@ namespace Minesweeper
             cell.isFlagged = !cell.isFlagged;
         }
 
+        public void openCell()
+        {
+            openCell(this.cursor.X, this.cursor.X)
+        }
+
         public void openCell(int x, int y)
         {
-            if (x == null || y == null)
-            {
-                x = this.cursor.X;
-                y = this.cursor.Y;
-            }
             if (this.gameStatus != "playing")
             {
                 return;
