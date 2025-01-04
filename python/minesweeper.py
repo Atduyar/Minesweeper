@@ -240,12 +240,14 @@ while True:
             print(term.black_on_yellow(term.center(
                 f"{board.openedCellsCount}/{board.settings.height*board.settings.width-board.settings.mine}")))
         case "gameWin":
-            print(term.black_on_green(term.center('You Win! Press "r" to replay')))
+            print(term.black_on_green(term.center('You Win! Press "r" to replay, "q" to quit.')))
         case "gameOver":
-            print(term.black_on_red(term.center('Game Over Press "r" to replay')))
+            print(term.black_on_red(term.center('Game Over Press "r" to replay, "q" to quit.')))
     board.render()
 
     print(term.black_on_darkkhaki(term.center('Status')))
+    print(term.black_on_white(term.ljust('[Arrow keys] Move  [Space] Open  [F] Flag ')))
+    print(term.move_x(term.width-22)+term.move_up()+term.black_on_red+ ' [R] Restart [Q] Quit '+term.normal)
     print(end="", flush=True)
     # update
     with term.cbreak(), term.hidden_cursor():
