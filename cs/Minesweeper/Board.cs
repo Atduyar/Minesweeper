@@ -227,26 +227,6 @@ namespace Minesweeper
             this.cursor.X = Math.Min(this.difficultySettings.width - 1, this.cursor.X + 1);
         }
 
-
-
-
-
-        //HOME SCREEN
-        //Static texts:
-        private readonly String WelcomeMessage = "MINESWEEPER";
-        private readonly String Rules = "In this game you have to find all mines by flagging them using 'F' key on the selected spot. " +
-            "Find mines by looking at the numbers that appear on the open fields. To open a field press ENTER key. " +
-            "For each number a mine is hiding somewhere in the surrounding 3x3 area of that number. " +
-            "The number shows how much mines are around. If you open a mine, you lose. Good luck! \n \n" +
-            "First select a difficulty. " +
-            "For each difficulty the board and the number of mines will be bigger. " +
-            "Select by entering the following keys and pressing enter: ";
-        private readonly String SelectionEasy = "EASY - 1 (9X9, 10 MINES)";
-        private readonly String SelectionNormal = "NORMAL - 2 (16X16, 40 MINES)";
-        private readonly String SelectionHard = "HARD - 3 (30X16, 99 MINES)";
-
-
-
     }
     //END OF BOARD----------------------------------------------------------------------
 
