@@ -8,6 +8,6 @@ compile_commands.json
 *.log
 js/node_modules/
 .vs/
-cs/minesweeper/.vs/
-cs/minesweeper/bin/
-cs/minesweeper/obj/
+cs/Minesweeper/.vs/
+cs/Minesweeper/bin/
+cs/Minesweeper/obj/
