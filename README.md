@@ -42,6 +42,7 @@ $ dotnet run
 ```
 ### Pyhton
 ```sh
+$ pip install blessed # or for debian $ sudo apt install python3-blessed
 $ python3 python/minesweeper.py
 ```
 ## Requirements
