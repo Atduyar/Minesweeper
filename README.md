@@ -1,6 +1,15 @@
 # Minesweeper
 This is a minesweeper game You can play on terminal.
 It is written in 3 different languages: C#, Python and JavaScript.
+### Menu Screen
+![image](https://github.com/user-attachments/assets/8eec7725-c517-48b9-a756-a6174491d82d)
+
+### Game Screen
+![image](https://github.com/user-attachments/assets/063ff415-5d5e-4913-8250-17c939ec0404)
+
+### Playing
+![image](https://github.com/user-attachments/assets/390f0419-eafd-491e-9555-ee0f4a8446d8)
+![image](https://github.com/user-attachments/assets/df1fc90c-be07-4b54-8c99-0202fec84e3e)
 
 - [Minesweeper](#minesweeper)
     - [Installation](#installation)
@@ -20,8 +29,21 @@ It is written in 3 different languages: C#, Python and JavaScript.
         - [JavaScript](#javascript)
 
 ## Installation
-In progress...
-
+### JS
+```sh
+$ cd js
+$ npm install
+$ npm run start
+```
+### CS
+```sh
+$ cd cs/Minesweeper
+$ dotnet run
+```
+### Pyhton
+```sh
+$ python3 python/minesweeper.py
+```
 ## Requirements
 You need a terminal that supports ANSI escape codes and colours.
 
