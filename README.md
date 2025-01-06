@@ -46,7 +46,8 @@ $ pip install blessed # or for debian $ sudo apt install python3-blessed
 $ python3 python/minesweeper.py
 ```
 ## Requirements
-You need a terminal that supports ANSI escape codes and colours.
+- You need a terminal that supports ANSI escape codes and colours.
+- Python3, Nodejs and dotnet might need blessed librares.
 
 ## How to play
 ### Start a new game
